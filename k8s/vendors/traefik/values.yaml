@@ -1,0 +1,37 @@
+traefik:
+  nameOverride: traefik
+  # image: armkung/traefik
+  # imageTag: windows-2019
+  deploymentStrategy:
+    type: Recreate
+  serviceType: LoadBalancer
+  externalTrafficPolicy: "Local"
+  replicas: 1
+  nodeSelector:
+    kubernetes.io/os: linux
+  # deployment:
+    # hostPort:
+    #   httpEnabled: true
+  # kubernetes:
+  #   endpoint: https://10.0.0.71:6443
+  rbac:
+    enabled: true
+  debug:
+    enabled: true
+  accessLogs:
+    enabled: true
+    format: json
+  # tolerations:
+  #   - key: os
+  #     operator: Equal
+  #     value: windows
+  #     effect: NoSchedule
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          topologyKey: kubernetes.io/hostname
+          labelSelector:
+            matchLabels:
+              app: traefik

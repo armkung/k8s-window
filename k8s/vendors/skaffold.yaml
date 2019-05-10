@@ -1,0 +1,25 @@
+apiVersion: skaffold/v1beta11
+kind: Config
+deploy:
+  helm:
+    releases:
+      # - name: traefik
+      #   chartPath: traefik
+      #   namespace: traefik
+      #   remote: true
+      # - name: metallb
+      #   chartPath: metallb
+      #   namespace: metallb
+      #   remote: true
+      # - name: cd
+      #   chartPath: brigade
+      #   namespace: cd
+      #   remote: true
+      # - name: fluentd
+      #   chartPath: fluentd
+      #   namespace: fluentd
+      #   remote: true
+      - name: argo
+        chartPath: argo
+        namespace: argo
+        remote: true

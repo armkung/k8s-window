@@ -1,0 +1,39 @@
+{{- if .Values.services }}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: probe-ingress
+  namespace: {{ .Release.Namespace }}
+  labels:
+    name: probe-ingress
+    tier: backend
+    release: {{ $.Values.release }}
+  annotations:
+    ingress.kubernetes.io/priority: "98"
+    ingress.kubernetes.io/request-modifier: "ReplacePathRegex: ^/(v[0-9a-z.-]+)|(latest)/(.*) $3"
+    ingress.kubernetes.io/custom-response-headers: >
+      Access-Control-Allow-Origin: *
+spec:
+  rules:
+  - http:
+      paths:
+      {{- range $service := .Values.services }}
+      {{- $_ := set $ "service" (merge dict $service) }}
+      {{- if and $service.enabled $service.ingress.enabled }}
+      - path: /{service:(latest/|){{ template "path-name" $.service }}}/{path:{{ template "probe" $ }}}
+        backend:
+          serviceName: {{ template "service-name" $.service }}
+          servicePort: {{  $service.ingress.port }}
+      {{- range $version, $image := $service.version }}
+      {{- $_ := set $.service "currentVersion" $version }}
+      - path: /{service:(v[0-9]+)/{{ template "path-name" $.service }}}/{path:{{ template "probe" $ }}}
+        backend:
+          serviceName: {{ template "service-name" $.service }}
+          servicePort: {{  $service.ingress.port }}
+      {{- end }}
+      {{- end }}
+      {{- end }}
+    {{- if .Values.host }}
+    host: {{ .Values.host }}
+    {{- end }}
+{{- end }}

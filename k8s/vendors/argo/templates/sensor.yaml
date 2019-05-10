@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: slack-sensor
+  labels:
+    sensors.argoproj.io/sensor-controller-instanceid: argo-events
+    # sensor controller will use this label to match with it's own version
+    # do not remove
+    argo-events-sensor-version: v0.10
+spec:
+  template:
+    spec:
+      containers:
+        - name: sensor
+          image: argoproj/sensor:v0.9.2
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: app
+              mountPath: /src
+      volumes:
+        - name: app
+          emptyDir: {}
+      serviceAccountName: argo-events-sa
+  eventProtocol:
+    type: HTTP
+    http:
+      port: "9300"
+  dependencies:
+    - name: slack-gateway:default
+  triggers:
+    - template:
+        name: deploy
+        group: argoproj.io
+        version: v1alpha1
+        kind: Workflow
+        source:
+          inline: |
+{{ .Files.Get "workflow/demo.yaml" | indent 12 }}
+      resourceParameters:
+        - src:
+            event: slack-gateway:default
+          dest: spec.arguments.parameters.0.value

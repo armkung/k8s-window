@@ -1,0 +1,13 @@
+argo-events:
+  namespace: argo
+argo:
+  images:
+    tag: v2.3.0
+  init:
+    serviceAccount: argo-events-sa
+  ui:
+    forceNamespaceIsolation: "true"
+  controller:
+    serviceAccount: default
+    workflowNamespaces:
+      - argo

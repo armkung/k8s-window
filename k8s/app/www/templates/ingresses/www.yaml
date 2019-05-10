@@ -1,0 +1,35 @@
+{{- if .Values.services }}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: www-ingress
+  namespace: {{ .Release.Namespace }}
+  labels:
+    name: www-ingress
+    tier: frontend
+    release: {{ $.Values.release }}
+  annotations:
+    ingress.kubernetes.io/priority: "2"
+    ingress.kubernetes.io/rule-type: "PathPrefix"
+spec:
+  rules:
+  - http:
+      paths:
+      {{- range $service := .Values.services }}
+      {{- if and $service.enabled $service.ingress.enabled }}
+      {{- range $version, $image := $service.version }}
+      - path: /{{ $version }}/{{ $service.path | default $service.name }}
+        backend:
+          serviceName: {{ $service.name }}-service-{{ $version }}
+          servicePort: {{ $service.ingress.port }}
+      {{- end }}
+      - path: /{{ $service.path | default $service.name }}
+        backend:
+          serviceName: {{ $service.name }}-service-{{ $service.latestVersion }}
+          servicePort: {{ $service.ingress.port }}
+      {{- end }}
+      {{- end }}
+    {{- if .Values.host }}
+    host: {{ .Values.host }}
+    {{- end }}
+{{- end }}

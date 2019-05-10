@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: slack-
+spec:
+  entrypoint: skaffold
+  arguments:
+    parameters:
+      - name: payload
+        value: payload
+  templates:
+    - name: skaffold
+      inputs:
+        artifacts:
+          - name: src
+            path: /src
+            git:
+              repo: https://github.com/armkung/k8s-window.git
+              revision: master
+        parameters:
+          - name: payload
+      container:
+        image: armkung/deployer
+        command: ["/bin/sh", "-c"]
+        args:
+          - echo "{{inputs.parameters.payload}}";
+            ls -lah /src;

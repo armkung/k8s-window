@@ -1,0 +1,4 @@
+{{- define "configmap.labels" }} 
+  {{- $_ := set .service "type" "config" }}
+  {{- include "labels" . }} 
+{{- end }} 

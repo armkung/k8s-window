@@ -1,0 +1,125 @@
+{{- range $serviceName, $service := .Values.services }}
+{{- range $version, $image := $service.version }}
+{{- $_ := set $service "module" "api" }}
+{{- $_ := set $ "service" (merge dict $service) }}
+{{- $_ := set $.service "tag" $image.tag }}
+{{- $_ := set $.service "version" $version }}
+{{- if $.service.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  {{- include "deployment.labels" $ }}
+spec:
+  {{- if eq $.Values.release "prod" }}
+  replicas: {{ $.service.replicas | default 2 }}
+  {{- else }}
+  replicas: {{ $.service.replicas | default 1 }}
+  {{- end }}
+  selector:
+    matchLabels:
+      name: {{ $.service.name }}
+{{- include "labels.info" $ | indent 4 }}
+  template:
+    metadata:
+      labels:
+        name: {{ $.service.name }}
+{{- include "labels.info" $ | indent 6 }}
+      annotations:
+      {{- if $.service.hasConfigMap }}
+        configmap-sha256sum: {{ include (print $.Template.BasePath "/configmaps/" $serviceName ".yaml") $ | sha256sum }}
+      {{- end }}
+      {{- if $.service.hasSecret }}
+        secret-sha256sum: {{ include (print $.Template.BasePath "/secrets/" $serviceName ".yaml") $ | sha256sum }}
+      {{- end }}
+    spec:
+      imagePullSecrets:
+        - name: appman-docker-registry-cred-secret
+      nodeSelector:
+{{- if $.service.nodeSelector }}
+{{ toYaml $.service.nodeSelector | indent 8 }}
+{{- else }}
+{{ toYaml $.Values.nodeSelector | indent 8 }}
+{{- end }}
+      containers:
+        - name: {{ $.service.name }}
+          image: "{{ $.service.repository }}:{{ $.service.tag }}"
+          imagePullPolicy: IfNotPresent
+          {{- if or $.service.hasConfigMap $.service.hasSecret }}
+          envFrom:
+            {{- if $.service.hasConfigMap }}
+            - configMapRef:
+                name: {{ $.service.name }}-config-{{ $.service.version }}
+            {{- end }}
+            {{- if $.service.hasSecret }}
+            - secretRef:
+                name: {{ $.service.name }}-secret-{{ $.service.version }}
+            {{- end }}
+          {{- end }}
+          ports:
+            {{- range $portName, $port := $service.port }}
+            - name: {{ $portName }}
+              containerPort: {{ $port }}
+              protocol: TCP
+            {{- end }}
+          resources:
+{{- include "deployment.resources" $ | indent 12 }}
+          {{- if $.service.health }}
+          livenessProbe:
+            {{- if $.service.health.path }}
+            httpGet:
+              path: {{ $.service.health.path }}
+              port: {{ $.service.health.port }}
+            {{- else }}
+            tcpSocket:
+              port: {{ $.service.health.port }}
+            {{- end }}
+            initialDelaySeconds: 1800
+            timeoutSeconds: 300
+            periodSeconds: 1800
+          readinessProbe:
+            {{- if $.service.health.path }}
+            httpGet:
+              path: {{ $.service.health.path }}
+              port: {{ $.service.health.port }}
+            {{- else }}
+            tcpSocket:
+              port: {{ $.service.health.port }}
+            {{- end }}
+            initialDelaySeconds: 90
+            timeoutSeconds: 120
+            periodSeconds: 60
+            failureThreshold: 20
+          {{- end }}
+          {{- range $volume := $.service.volumes }}
+          volumeMounts:
+            - name: {{ $volume.name }}
+              mountPath: {{ $volume.mountPath }}
+          {{- end }}
+      {{- range $volume := $.service.volumes }}
+      volumes:
+        - name: {{ $volume.name }}
+{{ toYaml $volume.persistence | indent 10 }}
+      {{- end }}
+      {{- if eq $.Values.release "prod" }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    name: {{ $.service.name }}
+{{- include "labels.info" $ | indent 18 }}
+      {{- end }}
+      {{- if eq (index $.Values.nodeSelector "kubernetes.io/os") "windows" }}
+      tolerations:
+        - key: os
+          operator: Equal
+          value: windows
+          effect: NoSchedule
+      {{- end }}
+---
+{{- end }}
+{{- end }}
+{{- end }}

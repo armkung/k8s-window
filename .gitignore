@@ -1,0 +1,7 @@
+*.pem
+config
+cluster.rkestate
+kube-proxy.exe
+kubectl.exe
+kubelet.exe
+docker-registry.yaml
