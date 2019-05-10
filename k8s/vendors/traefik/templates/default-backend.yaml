@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ingress-default-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: ingress-default-backend
+  template:
+    metadata:
+      labels:
+        name: ingress-default-backend
+    spec:
+      containers:
+        - name: ingress-default-backend
+          image: armkung/default-backend
+          imagePullPolicy: Always
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingress-default-backend
+spec:
+  ports:
+  - name: http
+    targetPort: 80
+    port: 80
+    protocol: TCP
+  selector:
+    name: ingress-default-backend

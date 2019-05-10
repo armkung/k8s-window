@@ -1,0 +1,6 @@
+dependencies:
+- name: fluentd
+  repository: https://kubernetes-charts.storage.googleapis.com
+  version: 1.9.0
+digest: sha256:037adb7daec8dcc32830154470a0f7de183274052c5acd59dcdaf1dc98113134
+generated: 2019-05-24T19:55:34.31481858+07:00

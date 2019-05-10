@@ -1,0 +1,31 @@
+# apiVersion: extensions/v1beta1
+# kind: Ingress
+# metadata:
+#   name: argocd-server-grpc
+#   annotations:
+#     ingress.kubernetes.io/priority: "999"
+#     ingress.kubernetes.io/frontend-entry-points: h2c
+# spec:
+#   rules:
+#   - http:
+#       paths:
+#       - path: /
+#         backend:
+#           serviceName: argocd-server
+#           servicePort: 80
+# ---
+# apiVersion: extensions/v1beta1
+# kind: Ingress
+# metadata:
+#   name: argocd-server
+#   annotations:
+#     ingress.kubernetes.io/priority: "998"
+#     ingress.kubernetes.io/rule-type: PathPrefixStrip
+# spec:
+#   rules:
+#   - http:
+#       paths:
+#       - path: /admin/cd
+#         backend:
+#           serviceName: argocd-server
+#           servicePort: 80

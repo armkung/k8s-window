@@ -1,0 +1,4 @@
+{{- define "service.labels" }} 
+  {{- $_ := set .service "type" "service" }}
+  {{- include "labels" . }} 
+{{- end }} 

@@ -1,0 +1,29 @@
+{{- range $chart := .Values.charts }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ $chart.name }}
+spec:
+  source:
+    repoURL: {{ $.Values.repo }}
+    targetRevision: {{ $.Values.revision }}
+    path: {{ $chart.path }}
+    helm:
+      valueFiles:
+        - values.yaml
+        {{- if $chart.release }}
+        - values-{{ $chart.release }}.yaml
+        {{- end }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ $chart.namespace }}
+  syncPolicy:
+    automated:
+      prune: false
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas
+---
+{{- end }}

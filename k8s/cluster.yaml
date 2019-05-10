@@ -1,0 +1,6 @@
+apiVersion: skaffold/v1beta11
+kind: Config
+deploy:
+  kubectl:
+    manifests:
+      - cluster/*.yaml

@@ -1,0 +1,98 @@
+traefik:
+  nameOverride: traefik
+  imageTag: 1.7.12
+  # image: armkung/traefik
+  # imageTag: windows-2019
+  deploymentStrategy:
+    type: Recreate
+  serviceType: LoadBalancer
+  externalTrafficPolicy: "Local"
+  replicas: 1
+  nodeSelector:
+    beta.kubernetes.io/os: linux
+  ssl:
+    enabled: true
+    enforced: false
+    upstream: false
+    # hostPath:
+    #   cert: /etc/ssl/certs/tls.crt
+    #   key: /etc/ssl/certs/tls.key
+  acme:
+    enabled: false
+    staging: true
+    onHostRule: true
+    challengeType: http-01
+  rbac:
+    enabled: true
+  debug:
+    enabled: true
+  accessLogs:
+    enabled: true
+    format: json
+    fields:
+      defaultMode: drop
+      names:
+        ClientHost: keep
+        OriginStatus: keep
+        DownstreamStatus: keep
+        Duration: keep
+        RequestHost: keep
+        RequestPath: keep
+        RequestMethod: keep
+      headers:
+        defaultMode: drop
+        names: 
+          User-Agent: keep
+          Requestid: keep
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            topologyKey: kubernetes.io/hostname
+            labelSelector:
+              matchLabels:
+                app: traefik
+  # tracing:
+  #   enabled: true
+  #   backend: jaeger
+  #   jaeger:
+  #     samplingType: "const"
+  #     samplingParam: "1.0"
+  # env:
+  #   - name: JAEGER_AGENT_HOST
+  #     valueFrom:
+  #       fieldRef:
+  #         fieldPath: status.hostIP
+  # args:
+  #   - --tracing.jaeger.localagenthostport=$(JAEGER_AGENT_HOST):6831
+  #   - --tracing.jaeger.samplingserverurl=$(JAEGER_AGENT_HOST):5778/sampling
+  config: |
+    [healthcheck]
+      interval = "5m"
+    [forwardingTimeouts]
+      dialTimeout = "60s"
+    [file]
+    [frontends]
+      [frontends.cors]
+        backend = "cors"
+        priority = 99
+          [frontends.cors.routes.defaultBackend]
+          rule = "Method:OPTIONS"
+          [frontends.cors.headers.customresponseheaders]
+          Access-Control-Allow-Origin = "*"
+          Access-Control-Allow-Headers = "authorization, content-type"
+    [backends]
+      [backends.cors.servers.defaultBackend]
+      url = "http://ingress-default-backend.traefik"
+      weight = 1
+  # kubernetes:
+  #   enablePassTLSCert: true
+  # deployment:
+  #   hostPort:
+  #     httpEnabled: true
+  # tolerations:
+  #   - key: os
+  #     operator: Equal
+  #     value: windows
+  #     effect: NoSchedule

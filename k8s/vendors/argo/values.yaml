@@ -1,0 +1,64 @@
+argo-cd:
+  applicationController:
+    image:
+      repository: argoproj/argocd
+      tag: v1.0.1
+  repoServer:
+    image:
+      repository: argoproj/argocd
+      tag: v1.0.1
+  dexServer:
+    initImage:
+      repository: argoproj/argocd
+      tag: v1.0.1
+  server:
+    image:
+      repository: argoproj/argocd
+      tag: v1.0.1
+    uiInitImage:
+      # repository: argoproj/argocd-ui
+      # tag: v1.0.1
+      repository: armkung/argocd-ui
+      tag: latest
+    extraArgs:
+      - --insecure
+      - --basehref
+      - /admin/cd
+      - --dex-server
+      - http://argocd-dex-server:5556/admin/cd
+  rbac:
+    policyDefault: role:admin
+  config:
+    url: http://192.168.122.210/admin/cd
+    dexConfig:
+      #   # Argo CD's externally facing base URL. Required for configuring SSO
+      #   # url: https://argo-cd-demo.argoproj.io
+      #
+      #   # A dex connector configuration. See documentation on how to configure SSO:
+      #   # https://github.com/argoproj/argo-cd/blob/master/docs/sso.md#2-configure-argocd-for-sso
+      connectors:
+        - type: github
+          id: github
+          name: github
+          config:
+            clientID: 70a2b2c6e5a1237d853f
+            clientSecret: 09eccdc3df69f1e1b32165914e47dc6744b45f82
+            # orgs:
+            #   - name: your-github-org
+            #     teams:
+    # repositories:
+    #   - url: git@gitlab.com:usersprivategroup/users-gitops-config.git
+    #     sshPrivateKeySecret:
+    #       key: privateKey
+    #       name: argocd-dev-key
+    webhook:
+      githubSecret: OEVNeXF6ZnJ2SXhnRVhmZjY2Sjd6TXZjCg==
+  ingress:
+    enabled: true
+    servicePort: 80
+    annotations:
+      ingress.kubernetes.io/rule-type: PathPrefixStrip
+      ingress.kubernetes.io/priority: "999"
+    path: /admin/cd
+    hosts:
+      - ""

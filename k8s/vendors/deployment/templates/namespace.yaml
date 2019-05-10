@@ -1,0 +1,13 @@
+{{- range $chart := .Values.charts }}
+{{- if $chart.namespace }}
+{{- if not (eq $chart.namespace "default") }}
+{{- if not (eq $chart.namespace "kube-system") }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ $chart.namespace }}
+---
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

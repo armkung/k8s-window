@@ -1,0 +1,24 @@
+apiVersion: skaffold/v1beta11
+kind: Config
+deploy:
+  helm:
+    releases:
+      - name: argo
+        chartPath: vendors/argo
+        namespace: default
+        remote: true
+      - name: vendors-deployment
+        chartPath: vendors/deployment
+        namespace: default
+      - name: traefik
+        chartPath: vendors/traefik
+        namespace: traefik
+        remote: true
+      - name: metallb
+        chartPath: vendors/metallb
+        namespace: metallb
+        remote: true
+      - name: keel
+        chartPath: vendors/keel
+        namespace: keel
+        remote: true

@@ -1,0 +1,68 @@
+# apiVersion: v1
+# kind: PersistentVolume
+# metadata:
+#   name: app-dev
+# spec:
+#   capacity:
+#     storage: 50Gi
+#   accessModes:
+#     - ReadWriteMany
+#   persistentVolumeReclaimPolicy: Retain
+#   storageClassName: local-storage
+#   local:
+#     # path: /data
+#     path: C:/Users/Administrator/data
+#   nodeAffinity:
+#     required:
+#       nodeSelectorTerms:
+#       - matchExpressions:
+#         - key: kubernetes.io/os
+#           operator: In
+#           values:
+#             - windows
+# ---
+# apiVersion: v1
+# kind: PersistentVolume
+# metadata:
+#   name: app-sit
+# spec:
+#   capacity:
+#     storage: 50Gi
+#   accessModes:
+#     - ReadWriteMany
+#   persistentVolumeReclaimPolicy: Retain
+#   storageClassName: local-storage
+#   local:
+#     # path: /data
+#     path: C:/Users/Administrator/data
+#   nodeAffinity:
+#     required:
+#       nodeSelectorTerms:
+#       - matchExpressions:
+#         - key: kubernetes.io/os
+#           operator: In
+#           values:
+#             - windows
+# ---
+# apiVersion: v1
+# kind: PersistentVolume
+# metadata:
+#   name: app-local
+# spec:
+#   capacity:
+#     storage: 50Gi
+#   accessModes:
+#     - ReadWriteMany
+#   persistentVolumeReclaimPolicy: Retain
+#   storageClassName: local-storage
+#   local:
+#     # path: /data
+#     path: C:/Users/Administrator/data
+#   nodeAffinity:
+#     required:
+#       nodeSelectorTerms:
+#       - matchExpressions:
+#         - key: kubernetes.io/os
+#           operator: In
+#           values:
+#             - windows

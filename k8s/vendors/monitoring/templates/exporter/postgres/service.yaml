@@ -1,0 +1,17 @@
+{{ if .Values.exporter.postgres }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-metrics-exporter
+  namespace: {{ .Values.namespace }}
+  labels:
+    name: postgres-metrics-exporter
+spec:
+  ports:
+  - name: http
+    targetPort: 9187
+    port: 80
+    protocol: TCP
+  selector:
+    name: postgres-metrics-exporter
+{{ end }}

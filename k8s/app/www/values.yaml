@@ -1,0 +1,28 @@
+release: dev
+# nodeSelector:
+#   kubernetes.io/os: windows
+keel:
+  enabled: true
+  policy: all
+  pollSchedule: "@every 1m"
+
+# host:
+main: app
+services:
+  app:
+    enabled: true
+    hasConfigMap: false
+    hasSecret: false
+    name: demo
+    tier: frontend
+    repository: armkung/demo
+    version:
+      v1:
+        tag: 0.0.3
+    latestVersion: v1
+    ingress:
+      enabled: true
+      port: http
+    port:
+      http: 80
+   

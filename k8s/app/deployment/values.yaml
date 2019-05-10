@@ -1,0 +1,10 @@
+repo: https://github.com/armkung/k8s-window.git
+revision: master
+charts:
+  - name: app-deployment
+    path: k8s/app/deployment
+    namespace: default
+  - name: www
+    path: k8s/app/www
+  - name: api
+    path: k8s/app/api

@@ -1,0 +1,15 @@
+{{- define "service-name" -}}
+  {{- if .serviceName -}}
+  {{ .serviceName }}
+  {{- else -}}
+  {{ .name }}-service-{{ .currentVersion | default .latestVersion }}
+  {{- end -}}
+{{- end -}}
+
+{{- define "path-name" -}}
+  {{- $charList := splitList "" .name -}}
+  
+  {{- range $char := $charList -}}
+  ({{- title $char -}}|{{- $char -}})
+  {{- end -}}
+{{- end -}}

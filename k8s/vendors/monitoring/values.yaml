@@ -1,0 +1,185 @@
+exporter:
+  postgres:
+    username: admin
+    password: 1q2w3e4r
+    host: ""
+    port: "5432"
+    db: tsli
+    nodeSelector:
+      role: worker
+grafana:
+  ingress:
+    enabled: true
+    path: /admin/grafana
+    hosts:
+      - appman.co.th
+    annotations: 
+      ingress.kubernetes.io/rule-type: "PathPrefixStrip"
+  grafana.ini:
+    server:
+      domain: appman.co.th
+      root_url: "%(protocol)s://%(domain)s/admin/grafana/"
+  datasources: 
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          url: http://prometheus-service/admin/prometheus-dashboard
+          access: proxy
+          isDefault: true
+  dashboards:
+    default:
+      k8s-dashboard:
+        gnetId: 3119
+        revision: 2
+        datasource: Prometheus
+      traefik-api-dashboard:
+        gnetId: 4475
+        revision: 4
+        datasource: Prometheus
+      traefik-stat-dashboard:
+        gnetId: 2240
+        revision: 3
+        datasource: Prometheus
+      postgres-dashboard:
+        gnetId: 6742
+        revision: 1
+        datasource: Prometheus
+      # rook-ceph-dashboard:
+      #   gnetId: 7056
+      #   revision: 1
+      #   datasource: Prometheus
+  nodeSelector:
+    role: worker
+prometheus:
+  server:
+    baseURL: http://appman.co.th/admin/prometheus-dashboard
+    prefixURL: /admin/prometheus-dashboard
+    ingress:
+      enabled: true
+      hosts:
+        - appman.co.th/admin/prometheus-dashboard
+      annotations:
+        ingress.kubernetes.io/auth-type: "basic"
+        ingress.kubernetes.io/auth-secret: "basic-auth"
+    nodeSelector:
+      role: worker
+  alertmanager:
+    enabled: true
+    # baseURL: http://appman.co.th/admin/prometheus-alertmanager
+    # prefixURL: /admin/prometheus-alertmanager
+    ingress:
+      enabled: false
+      hosts:
+        - appman.co.th/admin/prometheus-alertmanager
+      annotations:
+        ingress.kubernetes.io/auth-type: "basic"
+        ingress.kubernetes.io/auth-secret: "basic-auth"
+    nodeSelector:
+      role: worker
+  pushgateway:
+    enabled: false
+  kubeStateMetrics:
+    enabled: true
+    nodeSelector:
+      role: worker
+  nodeExporter:
+    enabled: true
+    nodeSelector:
+      role: worker
+  alertmanagerFiles:
+    alertmanager.yml:
+      global:
+        slack_api_url: "https://hooks.slack.com/services/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"
+      receivers:
+        - name: default-receiver
+          slack_configs:
+            - channel: '#tsli-notify'
+              send_resolved: true
+              title: "[{{ .Status | toUpper }}]\n{{ range .Alerts }}{{ .Annotations.summary }}\n{{ end }}"
+              text: "{{ range .Alerts }}{{ .Annotations.description }}\n{{ end }}"
+      route:
+        group_by: [alertname]
+        group_wait: 10s
+        group_interval: 15s
+        repeat_interval: 24h
+        receiver: default-receiver
+        # routes:
+        #   - match:
+        #       alertname: HighMemoryLoad
+        #     repeat_interval: 5m
+        #     receiver: default-receiver
+  serverFiles:
+    alerts:
+      groups:
+        - name: alert
+          rules:
+            # - alert: HighMemoryLoad
+            #   expr: (sum(node_memory_MemTotal_bytes) - sum(node_memory_MemFree_bytes + node_memory_Buffers_bytes + node_memory_Cached_bytes) ) / sum(node_memory_MemTotal_bytes) * 100 > 50
+            #   for: 10s
+            #   labels:
+            #     severity: warning
+            #   annotations:
+            #     summary: |
+            #       Server memory is almost full
+            - alert: DeploymentFail
+              expr: kube_deployment_status_replicas != kube_deployment_status_replicas_available
+              for: 5m
+              labels:
+                severity: warning
+              annotations:
+                summary: |
+                  Deployment {{ $labels.deployment }} fail on {{ $labels.namespace }}
+            - alert: PodRestart
+              expr: rate(kube_pod_container_status_restarts_total{namespace=~"dev|sit|uat|prod|traefik|logging|monitoring"}[5m]) > 0
+              for: 5m
+              labels:
+                severity: warning
+              annotations:
+                summary: |
+                  Pod {{ $labels.pod }} restart on {{ $labels.namespace }}
+            - alert: PodDown
+              expr: kube_pod_status_phase{phase="Failed"} == 1
+              for: 1s
+              labels:
+                severity: critical
+              annotations:
+                summary: |
+                  Pod {{ $labels.pod }} down on {{ $labels.namespace }}
+            - alert: InstanceDown
+              expr: up == 0
+              for: 1s
+              labels:
+                severity: critical
+              annotations:
+                summary: |
+                  Instance {{ $labels.job }}({{ $labels.instance }}) down
+            - alert: DatabaseDown
+              expr: pg_up == 0
+              for: 1s
+              labels:
+                severity: critical
+              annotations:
+                summary: |
+                  Database {{ $labels.job }}({{ $labels.instance }}) down
+    prometheus.yml:
+      scrape_configs:
+        - job_name: 's3'
+          metrics_path: /minio/prometheus/metrics
+          static_configs:
+            - targets:
+                - s3.minio:9000
+        - job_name: 'postgres'
+          static_configs:
+            - targets:
+                - postgres-metrics-exporter
+        - job_name: 'traefik'
+          static_configs:
+            - targets:
+                - traefik-dashboard.traefik
+        - job_name: 'prometheus'
+          metrics_path: /admin/prometheus-dashboard/metrics
+          static_configs:
+            - targets:
+                - localhost:9090

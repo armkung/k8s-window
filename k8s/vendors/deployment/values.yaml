@@ -1,0 +1,15 @@
+repo: https://github.com/armkung/k8s-window.git
+revision: master
+charts:
+  - name: vendors-deployment
+    path: k8s/vendors/deployment
+    namespace: default
+  - name: metallb
+    path: k8s/vendors/metallb
+    namespace: metallb
+  - name: traefik
+    path: k8s/vendors/traefik
+    namespace: traefik
+  - name: keel
+    path: k8s/vendors/keel
+    namespace: keel

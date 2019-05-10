@@ -1,0 +1,41 @@
+fluentd:
+  service:
+    type: NodePort
+    nodePort: 31000
+    ports:
+      - name: http
+        protocol: TCP
+        containerPort: 8080
+  configMaps:
+    general.conf: |
+      <system>
+        log_level debug
+      </system>
+    system.conf: |
+    forward-input.conf: |
+      <source>
+        @type http
+        bind 0.0.0.0
+        port 8080
+        body_size_limit 32m
+        keepalive_timeout 10s
+      </source>
+    output.conf: |
+      <match fluent.**>
+        @type null
+      </match>
+
+      <match **>
+        @type forward
+        send_timeout 60s
+        recover_wait 10s
+        hard_timeout 60s
+
+        <server>
+          name slack-gateway
+          host slack-gateway-svc.argo-events
+          port 12000
+          weight 60
+        </server>
+      </match>
+          
