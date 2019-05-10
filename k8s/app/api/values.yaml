@@ -1,0 +1,10 @@
+release: dev
+nodeSelector:
+  kubernetes.io/os: windows
+keel:
+  enabled: true
+  policy: all
+  pollSchedule: "@every 1m"
+
+# host:
+# services:

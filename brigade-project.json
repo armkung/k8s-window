@@ -1,0 +1,45 @@
+{
+  "metadata": {
+    "name": "brigade-b7897cff8135d6b1861b1de1a6ae6d50b252a9797e4838ec0d8f6c",
+    "creationTimestamp": null,
+    "labels": {
+      "app": "brigade",
+      "component": "project",
+      "heritage": "brigade"
+    },
+    "annotations": {
+      "projectName": "armkung/k8s-window"
+    }
+  },
+  "stringData": {
+    "allowHostMounts": "false",
+    "allowPrivilegedJobs": "false",
+    "brigadejsPath": "",
+    "buildStorageSize": "50Mi",
+    "cloneURL": "https://github.com/armkung/k8s-window.git",
+    "defaultScript": "",
+    "defaultScriptName": "",
+    "genericGatewaySecret": "",
+    "github.baseURL": "",
+    "github.token": "",
+    "github.uploadURL": "",
+    "imagePullSecrets": "",
+    "initGitSubmodules": "false",
+    "kubernetes.allowSecretKeyRef": "false",
+    "kubernetes.buildStorageClass": "",
+    "kubernetes.cacheStorageClass": "",
+    "namespace": "cd",
+    "repository": "github.com/armkung/k8s-window",
+    "secrets": "{ \"a\": \"b\" }",
+    "serviceAccount": "",
+    "sharedSecret": "8EMyqzfrvIxgEXff66J7zMvc",
+    "sshKey": "",
+    "vcsSidecar": "brigadecore/git-sidecar:latest",
+    "worker.name": "",
+    "worker.pullPolicy": "IfNotPresent",
+    "worker.registry": "",
+    "worker.tag": "",
+    "workerCommand": "yarn -s start"
+  },
+  "type": "brigade.sh/project"
+}

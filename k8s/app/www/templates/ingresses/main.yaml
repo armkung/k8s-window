@@ -1,0 +1,27 @@
+{{- if .Values.main }}
+{{- $mainService := index .Values.services .Values.main }}
+{{- if $mainService.enabled }}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: main-ingress
+  namespace: {{ .Release.Namespace }}
+  labels:
+    name: main-ingress
+    tier: frontend
+    release: {{ $.Values.release }}
+  annotations:
+    ingress.kubernetes.io/priority: "1"
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        backend:
+          serviceName: {{ $mainService.name }}-service-{{ $mainService.latestVersion }}
+          servicePort: {{ $mainService.ingress.port }}
+    {{- if .Values.host }}
+    host: {{ .Values.host }}
+    {{- end }}
+{{- end }}
+{{- end }}

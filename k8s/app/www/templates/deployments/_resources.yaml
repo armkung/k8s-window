@@ -1,0 +1,25 @@
+{{- define "deployment.resources.requests" }} 
+{{- $resources := $.service.resources | default dict }}
+{{- $requests := $resources.requests | default dict }}
+requests:
+  {{- if eq $.Values.release "dev" }}
+  memory: {{ $requests.memory | default "100Mi" }}
+  cpu: {{ $requests.cpu | default "50m" }}
+  {{- else }}
+  memory: {{ $requests.memory | default "100Mi" }}
+  cpu: {{ $requests.cpu | default "100m" }}
+  {{- end }}
+{{- end }} 
+
+{{- define "deployment.resources.limits" }} 
+{{- $resources := $.service.resources | default dict }}
+{{- $limits := $resources.limits | default dict }}
+limits:
+  memory: {{ $limits.memory | default "300Mi" }}
+  cpu: {{ $limits.cpu | default "300m" }}
+{{- end }} 
+
+{{- define "deployment.resources" }} 
+{{- include "deployment.resources.requests" $ }}
+{{- include "deployment.resources.limits" $ }}
+{{- end }} 

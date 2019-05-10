@@ -1,0 +1,61 @@
+brigade:
+  genericGateway:
+    enabled: false
+    service:
+      name: brigade-generic-service
+      type: ClusterIP
+      externalPort: 8081
+  worker:
+    registry: brigadecore
+    name: brigade-worker
+  vacuum:
+    enabled: true
+    ## Set a schedule for how frequently this check is run.
+    ## Note that a run of the vacuum typically takes at least a minute. Finer-level
+    ## granularity than that may result in multiple vacuums running at once.
+    ## Format follows accepted Cron formats: https://en.wikipedia.org/wiki/Cron
+    schedule: "@daily"
+    registry: "brigadecore"
+    name: "brigade-vacuum"
+    # tag: latest
+    ## Age tells the vacuum how old a thing may be before it is considered ready to
+    ## be vacuumed. The format is an integer followed by the suffix h (hours), m (minutes)
+    ## or s (seconds).
+    ## The default is 30 days (720 hours)
+    age: "720h"
+  brigade-github-app:
+    enabled: true
+
+brigade-github-app:
+  rbac:
+    enabled: true
+  github:
+    appID: "31503"
+    key: |
+      -----BEGIN RSA PRIVATE KEY-----
+      MIIEpAIBAAKCAQEA8XsQzjid6H6pI627ipZYQ+7ARA2NEoolZ29brajdQ8yPPqrj
+      rX50QtS6mVycDt8Odwa5YhTnw2Fox+p8aqxBr3aXkdGmjuXwVAIZCERv+4PvqMrY
+      lp0CDWjheYfAQ8afnAF0Z5p64iuDEj9r0ZVGFBsYkLv5fARnB2Ip2zCT7vpB7v9p
+      ouRSDkg/fBRBYHZxuJhBum9PvX+oZzMHBlS6qRC4j5uY6YmQDOa8wKRHSZ6yNzed
+      gVjkjSz9ubtv93kUsTao2qR461Zc+AtUkCaOwS3AaKT0jAaO1Wxvagj77rOxiMff
+      KRdWw1LrdtaTBQbPQMoB4OHndXyGYdBkv1mGMQIDAQABAoIBADCtiS649QP3/GqH
+      zAVc10AicbmGLcjt9ipKpWV1Y90V8E5Groy7r/4E2fSuWXsZ9dWCkn42Dp4xFakv
+      GJN8U+Vl95nadEPcED0vCxLCkPxXlUkmUtDRp6dCXCledyByepw9ItT7rAfJk6tr
+      A3YFLFJDQAl1Cw636HjxjdR0j22dusR8kJNMFzCya+pCEGMSiaMMxi10V1vLXoib
+      ZrschFZrUuso+odp2l8AHe2vQgTa8iRe2hoQ6O0BHxtLFOUqvN+m/N0/fcWNG7gh
+      VpYVtu2/Ozi+xrNeHTOvcLh85UooP/fATxI/aBsV8MioqfWUQmzHly8qnpH3kUkG
+      xVd1Po0CgYEA/yCfSdAnsLXI7AsmcLT3ouoZaRe7J9ArJZ4Zf6HDJxKb4ocWkwXh
+      6wozyAD+ye2E6wHjdbVRj5w6Dd3e2ASG14It9pUVM2WPPnF+PyP9qO9RLWr35IgL
+      qLf/wE4AkIXSonhf/8+GmJZSVpnZ/NIAS3CzP/XdrGoMvoV7ky/bkl8CgYEA8k5+
+      uHvuST0upPNIpUy9SZehBjUrn6jpk+9zGxmNa8SBLFUkMr3DjYIURc9M0pm5Bl+w
+      Tpy/IVvzxJ5zJ8Qi+S3zlX26nosW81PvaX6aAXGNB2nD8GhXW9HMyj1jtnCA52Db
+      YwzIBVdDq4EWqEE0rDb8EzF1ZuyLt/WZT9xLUW8CgYEAm1VjZm+kGsUzhfPr/adR
+      NxHNUt0uCDmIa6js4Xa9+SYtXyjcp7tnJ9HYYSep+Yvx55wIv3wcIpH+Dr9NlLx8
+      1O3fykhO1jI5ms1DDnJ9WMQM6tg8AhqK7rjIsG9NjLDN5DniSUAzNOghTbTysimy
+      IDyIBqNNylHvXHitGpqC14UCgYEAjKtTWAjisnQpgyuV7hkZ/wJfQjpWBA/M4sxt
+      d7si5gCjuTgIlsiiIaH14P1TLSR/TRr6QPkw4M4APBJ86gYtA5pQwmXGlMpM3aDJ
+      6eXMxK/GXxpg3U3GAZFQIcz3+W9g9nK9ishdyvP5XjTIEZAhYyVcvEvHS6RiDL8x
+      bTKIK1MCgYBYqsOpXWDOpc8LSVmHYYK0jEyZkj2s3lZUjzZXtp8Ccc3hU/UHmwDo
+      3Zt+MxhyEP6Mww2lSkY67A/jkUOzR1ls7fTdX6vObfaVFiR81ks4VXg+6TC2UFyn
+      rVe49yy0qxBbI5mzZQWy6Cns2q8nmcsIAwbRJ2QmDmZwwMROc/xD0Q==
+      -----END RSA PRIVATE KEY-----

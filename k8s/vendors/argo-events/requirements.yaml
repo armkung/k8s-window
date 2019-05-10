@@ -1,0 +1,4 @@
+dependencies:
+  - name: argo-events
+    version: 0.4.2
+    repository: 'https://argoproj.github.io/argo-helm'

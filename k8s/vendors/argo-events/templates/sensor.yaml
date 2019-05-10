@@ -1,0 +1,75 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: slack-sensor
+  labels:
+    sensors.argoproj.io/sensor-controller-instanceid: argo-events
+    # sensor controller will use this label to match with it's own version
+    # do not remove
+    argo-events-sensor-version: v0.10
+spec:
+  template:
+    spec:
+      containers:
+        - name: sensor
+          image: argoproj/sensor:v0.9.2
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: app
+              mountPath: /home/demo
+      volumes:
+        - name: app
+          emptyDir: {}
+      serviceAccountName: argo-events-sa
+  eventProtocol:
+    type: HTTP
+    http:
+      port: "9300"
+  dependencies:
+    - name: slack-gateway:default
+  triggers:
+    # - template:
+    #     name: git-workflow
+    #     group: argoproj.io
+    #     version: v1alpha1
+    #     kind: Workflow
+    #     source:
+    #       git:
+    #         url: https://github.com/armkung/k8s-window.git
+    #         cloneDirectory: /home/demo
+    #         filePath: k8s/vendors/skaffold.yaml
+    #         namespace: argo-events
+    - template:
+        name: skaffold-workflow
+        group: argoproj.io
+        version: v1alpha1
+        kind: Workflow
+        source:
+          inline: |
+            apiVersion: argoproj.io/v1alpha1
+            kind: Workflow
+            metadata:
+              generateName: slack-
+            spec:
+              entrypoint: skaffold
+              arguments:
+                parameters:
+                - name: message
+                  value: hello world
+              templates:
+                - name: skaffold
+                  inputs:
+                    parameters:
+                      - name: message
+                  container:
+                    image: gcr.io/k8s-skaffold/skaffold
+                    command: ["/bin/sh", "-c"]
+                    args:
+                      - echo "{{`{{inputs.parameters.message}}`}}";
+                        cd /home/demo/k8s/vendors;
+                        skaffold deploy;
+
+      resourceParameters:
+        - src:
+            event: slack-gateway:default
+          dest: spec.arguments.parameters.0.value

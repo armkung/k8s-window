@@ -1,0 +1,71 @@
+apiVersion: skaffold/v1beta10
+kind: Config
+# build:
+#   artifacts:
+#     - image: gcr.io/k8s-skaffold/example
+#       context: .
+#       docker:
+#         buildArgs: []
+#   local:
+#     push: false
+#     useDockerCLI: false
+deploy:
+  helm:
+    releases: 
+      - name: cluster
+        chartPath: cluster
+        namespace: default
+      - name: api
+        chartPath: api
+      - name: www
+        chartPath: www
+profiles:
+  - name: local
+    deploy:
+      helm:
+        flags:
+          global:
+            - --kube-context=local
+            - --tiller-namespace=local
+        releases:
+          - name: api
+            chartPath: api
+            namespace: local
+            setValues:
+              release: local
+  - name: dev
+    patches:
+      - op: replace
+        path: /deploy/helm/releases/1/name
+        value: api-dev
+      - op: add
+        path: /deploy/helm/releases/1/namespace
+        value: dev
+      - op: replace
+        path: /deploy/helm/releases/2/name
+        value: www-dev
+      - op: add
+        path: /deploy/helm/releases/2/namespace
+        value: dev
+  - name: sit
+    patches:
+      - op: replace
+        path: /deploy/helm/releases/1/name
+        value: api-sit
+      - op: add
+        path: /deploy/helm/releases/1/namespace
+        value: sit
+      - op: add
+        path: /deploy/helm/releases/1/valuesFiles
+        value: 
+          - api/values-sit.yaml
+      - op: replace
+        path: /deploy/helm/releases/1/name
+        value: www-sit
+      - op: add
+        path: /deploy/helm/releases/2/namespace
+        value: sit
+      - op: add
+        path: /deploy/helm/releases/2/valuesFiles
+        value: 
+          - api/values-sit.yaml

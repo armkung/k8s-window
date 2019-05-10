@@ -1,0 +1,34 @@
+release: dev
+nodeSelector:
+  kubernetes.io/os: windows
+keel:
+  enabled: true
+  policy: all
+  pollSchedule: "@every 1m"
+
+# host:
+main: app
+services:
+  app:
+    enabled: true
+    hasConfigMap: false
+    hasSecret: false
+    name: demo
+    tier: frontend
+    repository: mcr.microsoft.com/dotnet/framework/samples
+    version:
+      v1:
+        tag: aspnetapp-windowsservercore-ltsc2019
+    latestVersion: v1
+    ingress:
+      enabled: true
+      port: http
+    port:
+      http: 80
+    volumes:
+      - name: data
+        mountPath: /home/data
+        persistence:
+          hostPath:
+            path: C:/Users/Administrator/data
+   

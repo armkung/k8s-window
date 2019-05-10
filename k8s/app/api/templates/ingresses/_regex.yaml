@@ -1,0 +1,7 @@
+{{- define "admin" -}} 
+  (swagger|hangfire|UpdatePolicyStatus|UpdateLetterDocument)
+{{- end -}}
+
+{{- define "probe" -}} 
+  (version|health)
+{{- end -}}

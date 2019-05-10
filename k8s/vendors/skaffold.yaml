@@ -1,0 +1,25 @@
+apiVersion: skaffold/v1beta10
+kind: Config
+deploy:
+  helm:
+    releases:
+      # - name: traefik
+      #   chartPath: traefik
+      #   namespace: traefik
+      #   skipBuildDependencies: true
+      # - name: metallb
+      #   chartPath: metallb
+      #   namespace: metallb
+      #   skipBuildDependencies: true
+      - name: cd
+        chartPath: brigade
+        namespace: cd
+        skipBuildDependencies: true
+      # - name: fluentd
+      #   chartPath: fluentd
+      #   namespace: fluentd
+      #   skipBuildDependencies: true
+      # - name: argo-events
+      #   chartPath: argo-events
+      #   namespace: argo-events
+      #   skipBuildDependencies: true
