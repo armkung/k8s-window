@@ -1,12 +1,13 @@
 {{- define "deployment.labels" }} 
   {{- $_ := set .service "type" "deployment" }}
+  {{- $keel := .service.keel | default .Values.keel }}
   {{- include "labels" . }} 
-    {{- if .Values.keel.enabled }}
-    keel.sh/policy: {{ .Values.keel.policy | quote }}
+    {{- if $keel.enabled }}
+    keel.sh/policy: {{ $keel.policy | quote }}
     keel.sh/trigger: poll
     {{- end }}
   annotations:
-    {{- if .Values.keel.enabled }}
-    keel.sh/pollSchedule: {{ .Values.keel.pollSchedule | quote }}
+    {{- if $keel.enabled }}
+    keel.sh/pollSchedule: {{ $keel.pollSchedule | quote }}
     {{- end }}
 {{- end }}

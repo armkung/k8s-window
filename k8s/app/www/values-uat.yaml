@@ -1,0 +1,11 @@
+release: uat
+host: k8s-uat
+
+keel:
+  enabled: false
+
+services:
+  app:
+    version:
+      v1:
+        tag: 0.0.1

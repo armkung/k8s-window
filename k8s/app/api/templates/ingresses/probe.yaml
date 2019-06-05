@@ -10,7 +10,7 @@ metadata:
     release: {{ $.Values.release }}
   annotations:
     ingress.kubernetes.io/priority: "98"
-    ingress.kubernetes.io/request-modifier: "ReplacePathRegex: ^/(v[0-9a-z.-]+)|(latest)/(.*) $3"
+    ingress.kubernetes.io/request-modifier: "ReplacePathRegex: ^(/preview|)(/(v[0-9a-z.-]+)|/latest|)(.*) $4"
     ingress.kubernetes.io/custom-response-headers: >
       Access-Control-Allow-Origin: *
 spec:
@@ -26,7 +26,7 @@ spec:
           servicePort: {{  $service.ingress.port }}
       {{- range $version, $image := $service.version }}
       {{- $_ := set $.service "currentVersion" $version }}
-      - path: /{service:(v[0-9]+)/{{ template "path-name" $.service }}}/{path:{{ template "probe" $ }}}
+      - path: /{{ $version }}/{service:{{ template "path-name" $.service }}}/{path:{{ template "probe" $ }}}
         backend:
           serviceName: {{ template "service-name" $.service }}
           servicePort: {{  $service.ingress.port }}

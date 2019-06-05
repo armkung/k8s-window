@@ -6,6 +6,10 @@
   {{- end -}}
 {{- end -}}
 
+{{- define "service-name-preview" }} 
+  {{- include "service-name" . }}-preview
+{{- end }} 
+
 {{- define "path-name" -}}
   {{- $charList := splitList "" .name -}}
   

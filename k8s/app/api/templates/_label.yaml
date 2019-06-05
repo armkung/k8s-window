@@ -1,14 +1,26 @@
+{{- define "label-name" }}
+{{- if index .service (print .service.type "Name") -}}
+{{- index .service (print .service.type "Name") -}}
+{{- else -}}
+{{- .service.name }}-{{ .service.type }}-{{ .service.version }}
+{{- end -}}
+{{- if .service.preview -}}
+-preview
+{{- end -}}
+{{- if eq .service.type "deployment" -}}
+{{- if not $.Values.keel.enabled -}}
+-{{ .service.tag }}
+{{- end -}}
+{{- end -}}
+{{- end -}} 
+
 {{- define "labels" }} 
-  {{- if index .service (print .service.type "Name") }}
-  name: {{ index .service (print .service.type "Name") }}
-  {{- else }}
-  name: {{ .service.name }}-{{ .service.type }}-{{ .service.version }}
-  {{- end }}
+  name: {{ include "label-name" .}}
   namespace: {{ .Release.Namespace }}
   labels:
     name: {{ .service.name }}
 {{- include "labels.info" . | indent 2 }} 
-{{- end }} 
+{{- end }}
 
 {{- define "labels.info" }}
   tier: {{ .service.tier }}

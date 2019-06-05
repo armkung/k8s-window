@@ -1,0 +1,2 @@
+release: prod
+host: k8s-prod

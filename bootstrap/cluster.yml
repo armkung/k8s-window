@@ -2,14 +2,14 @@
 # please consult the documentation on how to configure custom RKE images.
 nodes:
 # - address: ec2-18-136-121-76.ap-southeast-1.compute.amazonaws.com
-- address: 192.168.122.210
+- address: 192.168.122.14
   internal_address: ""
   port: "22"
   role:
   - controlplane
   - worker
   - etcd
-  hostname_override: ""
+  hostname_override: "master"
   user: armkung
   ssh_key: ""
   ssh_key_path: ""

@@ -1,0 +1,5 @@
+release: prod
+host: k8s-prod
+
+keel:
+  enabled: false

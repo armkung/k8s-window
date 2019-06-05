@@ -1,5 +1,12 @@
 {{- range $serviceName, $service := .Values.services }}
-{{- range $version, $image := $service.version }}
+{{- range $version, $_image := $service.version }}
+{{- $list := list $_image }}
+{{- if $_image.blueGreen }}
+{{- if not (eq $_image.tag $_image.blueGreen.tag) }}
+{{- $list = list $_image $_image.blueGreen }}
+{{- end }}
+{{- end }}
+{{- range $image := $list }}
 {{- $_ := set $service "module" "api" }}
 {{- $_ := set $ "service" (merge dict $service) }}
 {{- $_ := set $.service "tag" $image.tag }}
@@ -19,11 +26,17 @@ spec:
   selector:
     matchLabels:
       name: {{ $.service.name }}
+      {{- if not $.Values.keel.enabled }}  
+      tag: {{ $.service.tag }}
+      {{- end }}
 {{- include "labels.info" $ | indent 4 }}
   template:
     metadata:
       labels:
         name: {{ $.service.name }}
+        {{- if not $.Values.keel.enabled }}  
+        tag: {{ $.service.tag }}
+        {{- end }}
 {{- include "labels.info" $ | indent 6 }}
       annotations:
       {{- if $.service.hasConfigMap }}
@@ -35,8 +48,8 @@ spec:
     spec:
       imagePullSecrets:
         - name: appman-docker-registry-cred-secret
-      nodeSelector:
 {{- if $nodeSelector }}
+      nodeSelector:
 {{ toYaml $nodeSelector | indent 8 }}
 {{- end }}
       containers:
@@ -111,14 +124,19 @@ spec:
                     name: {{ $.service.name }}
 {{- include "labels.info" $ | indent 18 }}
       {{- end }}
-      {{- if eq (index $.Values.nodeSelector "kubernetes.io/os") "windows" }}
+      {{- if $nodeSelector }}
+      {{- if eq (index $nodeSelector "kubernetes.io/os" | default "") "windows" }}
+      {{- if eq (index $nodeSelector "beta.kubernetes.io/os" | default "") "windows" }}
       tolerations:
         - key: os
           operator: Equal
           value: windows
           effect: NoSchedule
       {{- end }}
+      {{- end }}
+      {{- end }}
 ---
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}

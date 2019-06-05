@@ -6,10 +6,14 @@
   {{- end -}}
 {{- end -}}
 
+{{- define "service-name-preview" -}} 
+  {{- include "service-name" . }}-preview
+{{- end -}} 
+
 {{- define "path-name" -}}
-  {{- $charList := splitList "" .name -}}
-  
-  {{- range $char := $charList -}}
-  ({{- title $char -}}|{{- $char -}})
-  {{- end -}}
+{{- if eq $.Values.main .service.name -}}
+{{ .service.name }}
+{{- else -}}
+({{ .service.name }}|)
+{{- end -}}
 {{- end -}}

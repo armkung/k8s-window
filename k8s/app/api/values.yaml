@@ -1,10 +1,28 @@
 release: dev
-nodeSelector:
-  kubernetes.io/os: windows
+host: k8s-dev
+
+# nodeSelector:
+#   kubernetes.io/os: windows
 keel:
   enabled: true
   policy: all
   pollSchedule: "@every 1m"
 
-# host:
-# services:
+services:
+  sync:
+    enabled: true
+    hasConfigMap: false
+    hasSecret: false
+    name: sync
+    tier: backend
+    repository: mendhak/http-https-echo
+    version:
+      v1:
+        tag: latest
+    latestVersion: v1
+    ingress:
+      enabled: true
+      port: http
+    port:
+      http: 80
+    

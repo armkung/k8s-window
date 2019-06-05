@@ -11,12 +11,12 @@ metadata:
   annotations:
     ingress.kubernetes.io/priority: "3"
     ingress.kubernetes.io/ssl-redirect: "false"
-    # ingress.kubernetes.io/request-modifier: "ReplacePathRegex: ^/(v[0-9a-z.-]+)|(latest)/(.*) $3"
+    ingress.kubernetes.io/request-modifier: "ReplacePathRegex: ^(/preview|)(/(v[0-9a-z.-]+)|/latest|)(.*) $4"
+    ingress.kubernetes.io/custom-response-headers: >
+      Access-Control-Allow-Origin: *
     # ingress.kubernetes.io/auth-type: "forward"
     # ingress.kubernetes.io/auth-response-headers: x-data-username
     # ingress.kubernetes.io/auth-url: http://auth.{{ .Release.Namespace }}/auth/verify
-    # ingress.kubernetes.io/custom-response-headers: >
-    #   Access-Control-Allow-Origin: *
 spec:
   rules:
   - http:
@@ -28,12 +28,24 @@ spec:
         backend:
           serviceName: {{ template "service-name" $.service }}
           servicePort: {{  $service.ingress.port }}
+       {{- if index $service "version" $service.latestVersion "blueGreen" }}
+      - path: /preview/{service:(latest/|){{ template "path-name" $.service }}}
+        backend:
+          serviceName: {{ template "service-name" $.service }}-preview
+          servicePort: {{ $service.ingress.port }}
+      {{- end }}
       {{- range $version, $image := $service.version }}
       {{- $_ := set $.service "currentVersion" $version }}
-      - path: /{service:(v[0-9]+)/{{ template "path-name" $.service }}}
+      - path: /{{ $version }}/{service:{{ template "path-name" $.service }}}
         backend:
           serviceName: {{ template "service-name" $.service }}
-          servicePort: {{  $service.ingress.port }}
+          servicePort: {{ $service.ingress.port }}
+      {{- if $image.blueGreen }}
+      - path: /preview/{{ $version }}/{service:{{ template "path-name" $.service }}}
+        backend:
+          serviceName: {{ template "service-name" $.service }}-preview
+          servicePort: {{ $service.ingress.port }}
+      {{- end }}
       {{- end }}
       {{- end }}
       {{- end }}

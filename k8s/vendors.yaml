@@ -22,3 +22,28 @@ deploy:
         chartPath: vendors/keel
         namespace: keel
         remote: true
+profiles:
+  - name: dev
+    patches:
+      - op: add
+        path: /deploy/helm/releases/1/values
+        value:
+          revision: master
+  - name: sit
+    patches:
+      - op: add
+        path: /deploy/helm/releases/1/values
+        value:
+          revision: master
+  - name: uat
+    patches:
+      - op: add
+        path: /deploy/helm/releases/1/values
+        value:
+          revision: master
+  - name: prod
+    patches:
+      - op: add
+        path: /deploy/helm/releases/1/values
+        value:
+          revision: master

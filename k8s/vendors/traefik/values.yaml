@@ -22,10 +22,15 @@ traefik:
     staging: true
     onHostRule: true
     challengeType: http-01
+  kubernetes:
+    # enablePassTLSCert: true
+    ingressEndpoint:
+      useDefaultPublishedService: true
   rbac:
     enabled: true
+  # logLevel: error
   debug:
-    enabled: true
+    enabled: false
   accessLogs:
     enabled: true
     format: json
@@ -86,8 +91,6 @@ traefik:
       [backends.cors.servers.defaultBackend]
       url = "http://ingress-default-backend.traefik"
       weight = 1
-  # kubernetes:
-  #   enablePassTLSCert: true
   # deployment:
   #   hostPort:
   #     httpEnabled: true

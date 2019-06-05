@@ -14,9 +14,11 @@ spec:
           value: {{ $.Values.release }}
       valueFiles:
         - values.yaml
+        {{- if not (eq $chart.name "app-deployment") }}
         {{- if $.Values.release }}
         {{- if not (eq $.Values.release "dev") }}
         - values-{{ $.Values.release }}.yaml
+        {{- end }}
         {{- end }}
         {{- end }}
   destination:
@@ -24,11 +26,14 @@ spec:
     namespace: {{ default $.Values.release $chart.namespace }}
   syncPolicy:
     automated:
-      prune: false
+      prune: true
   ignoreDifferences:
     - group: apps
       kind: Deployment
       jsonPointers:
         - /spec/replicas
+        {{- if has $.Values.release (list "dev" "sit") }}
+        - /spec/template/spec/containers/0/image
+        {{- end }}
 ---
 {{- end }}

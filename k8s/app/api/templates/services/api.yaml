@@ -1,7 +1,11 @@
 {{- range $service := .Values.services }}
-{{- range $version, $image := $service.version }}
+{{- range $version, $_image := $service.version }}
+{{- range $index,$image := list $_image $_image.blueGreen }}
+{{- if $image }}
 {{- $_ := set $ "service" (merge dict $service)  }}
 {{- $_ := set $.service "version" $version }}
+{{- $_ := set $.service "tag" $image.tag }}
+{{- $_ := set $.service "preview" (eq $index 1) }}
 {{- if $.service.enabled }}
 apiVersion: v1
 kind: Service
@@ -11,16 +15,21 @@ spec:
   ports:
   {{- range $portName, $port := $service.port }}
   - name: {{ $portName }}
-    targetPort: {{ $service.containerPort | default $portName }}
+    targetPort: {{ $portName }}
     port: {{ $port }}
     protocol: TCP
   {{- end }}
   selector:
     name: {{ $.service.name }}
+    {{- if not $.Values.keel.enabled }}  
+    tag: {{ $.service.tag }}
+    {{- end }}
     tier: {{ $.service.tier }}
     version: {{ $.service.version }}
     release: {{ $.Values.release }}
 ---
+{{- end }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}

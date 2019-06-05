@@ -1,5 +1,12 @@
-{{- range $service := .Values.services }}
-{{- range $version, $image := $service.version }}
+{{- range $serviceName, $service := .Values.services }}
+{{- range $version, $_image := $service.version }}
+{{- $list := list $_image }}
+{{- if $_image.blueGreen }}
+{{- if not (eq $_image.tag $_image.blueGreen.tag) }}
+{{- $list = list $_image $_image.blueGreen }}
+{{- end }}
+{{- end }}
+{{- range $image := $list }}
 {{- $_ := set $service "module" "www" }}
 {{- $_ := set $ "service" (merge dict $service) }}
 {{- $_ := set $.service "tag" $image.tag }}
@@ -19,23 +26,36 @@ spec:
   selector:
     matchLabels:
       name: {{ $.service.name }}
+      {{- if not $.Values.keel.enabled }}  
+      tag: {{ $.service.tag }}
+      {{- end }}
 {{- include "labels.info" $ | indent 4 }}
   template:
     metadata:
       labels:
         name: {{ $.service.name }}
+        {{- if not $.Values.keel.enabled }}  
+        tag: {{ $.service.tag }}
+        {{- end }}
 {{- include "labels.info" $ | indent 6 }}
+      annotations:
+      {{- if $.service.hasConfigMap }}
+        configmap-sha256sum: {{ include (print $.Template.BasePath "/configmaps/" $serviceName ".yaml") $ | sha256sum }}
+      {{- end }}
+      {{- if $.service.hasSecret }}
+        secret-sha256sum: {{ include (print $.Template.BasePath "/secrets/" $serviceName ".yaml") $ | sha256sum }}
+      {{- end }}
     spec:
       imagePullSecrets:
         - name: appman-docker-registry-cred-secret
-      nodeSelector:
 {{- if $nodeSelector }}
+      nodeSelector:
 {{ toYaml $nodeSelector | indent 8 }}
 {{- end }}
       containers:
         - name: {{ $.service.name }}
           image: "{{ $.service.repository }}:{{ $.service.tag }}"
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           {{- if or $.service.hasConfigMap $.service.hasSecret }}
           envFrom:
             {{- if $.service.hasConfigMap }}
@@ -100,8 +120,8 @@ spec:
 {{- include "labels.info" $ | indent 18 }}
       {{- end }}
       {{- if $nodeSelector }}
-      {{- if eq (index $nodeSelector "kubernetes.io/os") "windows" }}
-      {{- if eq (index $nodeSelector "beta.kubernetes.io/os") "windows" }}
+      {{- if eq (index $nodeSelector "kubernetes.io/os" | default "") "windows" }}
+      {{- if eq (index $nodeSelector "beta.kubernetes.io/os" | default "") "windows" }}
       tolerations:
         - key: os
           operator: Equal
@@ -111,6 +131,7 @@ spec:
       {{- end }}
       {{- end }}
 ---
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}

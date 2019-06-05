@@ -42,6 +42,7 @@ profiles:
         path: /deploy/helm/releases/0/values
         value:
           release: dev
+          revision: master
       - op: replace
         path: /deploy/helm/releases/1/name
         value: www-dev
@@ -71,6 +72,7 @@ profiles:
         path: /deploy/helm/releases/0/values
         value:
           release: sit
+          revision: master
       - op: replace
         path: /deploy/helm/releases/1/name
         value: www-sit
@@ -91,3 +93,63 @@ profiles:
       - op: add
         path: /deploy/helm/releases/2/namespace
         value: sit
+  - name: uat
+    patches:
+      - op: replace
+        path: /deploy/helm/releases/0/name
+        value: app-deployment-uat
+      - op: add
+        path: /deploy/helm/releases/0/values
+        value:
+          release: uat
+          revision: master
+      - op: replace
+        path: /deploy/helm/releases/1/name
+        value: www-uat
+      - op: add
+        path: /deploy/helm/releases/1/valuesFiles
+        value: 
+          - app/www/values-uat.yaml
+      - op: add
+        path: /deploy/helm/releases/1/namespace
+        value: uat
+      - op: replace
+        path: /deploy/helm/releases/2/name
+        value: api-uat
+      - op: add
+        path: /deploy/helm/releases/2/valuesFiles
+        value: 
+          - app/api/values-uat.yaml
+      - op: add
+        path: /deploy/helm/releases/2/namespace
+        value: uat
+  - name: prod
+    patches:
+      - op: replace
+        path: /deploy/helm/releases/0/name
+        value: app-deployment-prod
+      - op: add
+        path: /deploy/helm/releases/0/values
+        value:
+          release: prod
+          revision: master
+      - op: replace
+        path: /deploy/helm/releases/1/name
+        value: www-prod
+      - op: add
+        path: /deploy/helm/releases/1/valuesFiles
+        value: 
+          - app/www/values-prod.yaml
+      - op: add
+        path: /deploy/helm/releases/1/namespace
+        value: prod
+      - op: replace
+        path: /deploy/helm/releases/2/name
+        value: api-prod
+      - op: add
+        path: /deploy/helm/releases/2/valuesFiles
+        value: 
+          - app/api/values-prod.yaml
+      - op: add
+        path: /deploy/helm/releases/2/namespace
+        value: prod

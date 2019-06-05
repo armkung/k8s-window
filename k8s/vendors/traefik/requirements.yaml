@@ -1,4 +1,4 @@
 dependencies:
   - name: traefik
-    version: 1.68.3
+    version: 1.68.5
     repository: 'file://charts'

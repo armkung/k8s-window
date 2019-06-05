@@ -1,12 +1,13 @@
 release: dev
+host: k8s-dev
+
 # nodeSelector:
 #   kubernetes.io/os: windows
 keel:
-  enabled: true
+  enabled: false
   policy: all
   pollSchedule: "@every 1m"
 
-# host:
 main: app
 services:
   app:
@@ -18,7 +19,7 @@ services:
     repository: armkung/demo
     version:
       v1:
-        tag: 0.0.3
+        tag: 0.0.1
     latestVersion: v1
     ingress:
       enabled: true

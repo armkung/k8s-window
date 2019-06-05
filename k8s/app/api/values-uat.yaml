@@ -1,0 +1,11 @@
+release: uat
+host: k8s-uat
+
+keel:
+  enabled: false
+
+services:
+  sync:
+    version:
+      v1:
+        tag: latest
