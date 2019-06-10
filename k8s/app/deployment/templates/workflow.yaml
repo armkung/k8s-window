@@ -1,0 +1,21 @@
+# apiVersion: argoproj.io/v1alpha1
+# kind: Workflow
+# metadata:
+#   name: helm-workflow
+# spec:
+#   entrypoint: skaffold
+#   templates:
+#     - name: skaffold
+#       inputs:
+#         artifacts:
+#           - name: src
+#             path: /src
+#             git:
+#               repo: {{ .Values.repo }}
+#               revision: {{ .Values.revision }}
+#       container:
+#         image: armkung/deployer
+#         command: ["/bin/sh", "-c"]
+#         args:
+#           - cd /src/k8s;
+#             skaffold -f app.yaml -p {{ .Values.release }};

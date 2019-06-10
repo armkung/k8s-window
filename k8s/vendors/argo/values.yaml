@@ -62,3 +62,14 @@ argo-cd:
     path: /admin/cd
     hosts:
       - ""
+
+argo:
+  images:
+    tag: v2.3.0
+  init:
+    serviceAccount: argocd-server
+  ui:
+    forceNamespaceIsolation: "true"
+  controller:
+    workflowNamespaces:
+      - default
